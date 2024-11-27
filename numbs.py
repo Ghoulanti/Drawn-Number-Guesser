@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import numpy as np
 import tensorflow as tf
-
+import pickle
+from functools import partial
 
 model = tf.keras.models.load_model('model.keras', custom_objects={'softmax_v2': tf.nn.softmax})
 
@@ -60,6 +61,15 @@ def reset_canvas(event):
     data = np.ones((grid_size, grid_size))
     update_display()
 
+def rossz(event, button):
+    model.train_on_batch(preprocess_data(data), np.array([button.value]))
+    reset_canvas(event)
+class Numbs:
+    def __init__(self, n, ax, label):
+        self.value = n
+        self.button = Button(ax, label)
+        self.button.on_clicked(partial(rossz, button=self))
+
 fig, ax = plt.subplots(figsize=(6, 6))
 fig.canvas.mpl_connect("button_press_event", on_press)
 fig.canvas.mpl_connect("button_release_event", on_release)
@@ -69,5 +79,26 @@ reset_ax = plt.axes([0.8, 0.05, 0.1, 0.075])
 reset_button = Button(reset_ax, 'Reset')
 reset_button.on_clicked(reset_canvas)
 
+button_positions = [
+    [0.1, 0.05, 0.05, 0.05],
+    [0.2, 0.05, 0.05, 0.05],
+    [0.3, 0.05, 0.05, 0.05],
+    [0.4, 0.05, 0.05, 0.05],
+    [0.5, 0.05, 0.05, 0.05],
+    [0.6, 0.05, 0.05, 0.05],
+    [0.7, 0.05, 0.05, 0.05],
+    [0.8, 0.15, 0.05, 0.05],
+    [0.9, 0.15, 0.05, 0.05],
+    [0.1, 0.15, 0.05, 0.05],
+]
+
+numeric_buttons = []
+labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+for i, pos in enumerate(button_positions):
+    ax_button = plt.axes(pos)
+    num_button = Numbs(i, ax_button, labels[i])
+    numeric_buttons.append(num_button)
+
 update_display()
 plt.show()
+
