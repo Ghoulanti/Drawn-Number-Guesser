@@ -64,6 +64,8 @@ def reset_canvas(event):
 def rossz(event, button):
     model.train_on_batch(preprocess_data(data), np.array([button.value]))
     reset_canvas(event)
+    model.save("model.keras")
+
 class Numbs:
     def __init__(self, n, ax, label):
         self.value = n
